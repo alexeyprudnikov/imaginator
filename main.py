@@ -3,16 +3,17 @@ from config import Config
 from actions.resize import Resizer
 
 
+# proceed input as integer by list index (starting from 1) and return value of index
 def proceed_input_from_list(input_list):
     error_label = 'Error: input value not presented, please try again'
     input_label = ' or '.join([f'{idx + 1} - {val}' for idx, val in enumerate(input_list)])
     while True:
         try:
-            input_value = int(input(f'{input_label}: '))
-            while input_value not in [idx + 1 for idx, val in enumerate(input_list)]:
+            input_index = int(input(f'{input_label}: '))
+            while input_index not in [idx + 1 for idx, val in enumerate(input_list)]:
                 print(error_label)
-                input_value = int(input(f'{input_label}: '))
-            return input_value
+                input_index = int(input(f'{input_label}: '))
+            return input_list[input_index-1]
         except ValueError:
             print(error_label)
 
@@ -25,6 +26,7 @@ try:
 
     print('Enter image directory')
     path = input(': ')
+
     try:
         print(f'directory: {path}')
 
@@ -34,7 +36,7 @@ try:
         print('Select aspect ratio main dimension')
         dim = proceed_input_from_list(dimensions)
 
-        print(f'Enter new image {"width" if dim == "1" else "height"}')
+        print(f'Enter new image {dim}')
         value = int(input(': '))
         while value <= 0:
             print("Error: value must be > 0")
@@ -45,7 +47,7 @@ try:
         files = [fn for fn in os.listdir(path) if fn.split(".")[-1] in image_types]
 
         # proceed
-        if action == 1:
+        if action == 'resize':
             worker = Resizer(path, dim, value)
             count = 0
             for file_name in files:

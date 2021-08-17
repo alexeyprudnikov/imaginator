@@ -38,12 +38,12 @@ class Resizer:
         full_path = f'{self.path}/{file_name}'
         img = Image.open(full_path)
         done = False
-        if self.dim == 0:
+        if self.dim == 'width':
             w_percent = (self.value / float(img.size[0]))
             h_size = int((float(img.size[1]) * float(w_percent)))
             img = img.resize((self.value, h_size), Image.ANTIALIAS)
             done = True
-        elif self.dim == 1:
+        elif self.dim == 'height':
             h_percent = (self.value / float(img.size[1]))
             w_size = int((float(img.size[0]) * float(h_percent)))
             img = img.resize((w_size, self.value), Image.ANTIALIAS)
