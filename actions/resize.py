@@ -1,25 +1,7 @@
 import os
-import glob
+import utils
 from config import Config
 from PIL import Image
-
-config = Config()
-
-
-def create_dir(path):
-    try:
-        os.makedirs(path, 0o777, True)
-    except OSError:
-        raise
-
-
-def clear_dir(path):
-    files = glob.glob(f'{path}/{config.get("default", "file_prefix")}*.*')
-    for f in files:
-        try:
-            os.unlink(f)
-        except OSError:
-            raise
 
 
 class Resizer:
@@ -28,11 +10,15 @@ class Resizer:
         self.path = path
         self.dim = dim  # aspect ratio dimension
         self.value = value
+
+        config = Config()
         self.save_path = f'{path}{config.get("default", "save_path")}'
+        self.file_prefix = config.get("default", "file_prefix")
+
         if os.path.isdir(self.save_path):
-            clear_dir(self.save_path)
+            utils.clear_dir(self.save_path, self.file_prefix)
         else:
-            create_dir(self.save_path)
+            utils.create_dir(self.save_path)
 
     def resize(self, file_name):
         full_path = f'{self.path}/{file_name}'
@@ -50,5 +36,5 @@ class Resizer:
             done = True
 
         if done:
-            new_path = f'{self.save_path}/{config.get("default", "file_prefix")}{file_name}'
+            new_path = f'{self.save_path}/{self.file_prefix}{file_name}'
             img.save(new_path)

@@ -28,6 +28,10 @@ try:
     path = input(': ')
 
     try:
+        # get files from directory (will also check if directory exists)
+        image_types = config.get('default', 'image_types').split(',')
+        files = [fn for fn in os.listdir(path) if fn.split(".")[-1] in image_types]
+
         print(f'directory: {path}')
 
         print('Select an action')
@@ -41,10 +45,6 @@ try:
         while value <= 0:
             print("Error: value must be > 0")
             value = int(input(': '))
-
-        # get files from directory
-        image_types = config.get('default', 'image_types').split(',')
-        files = [fn for fn in os.listdir(path) if fn.split(".")[-1] in image_types]
 
         # proceed
         if action == 'resize':
