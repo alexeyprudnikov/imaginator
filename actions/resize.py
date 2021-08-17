@@ -1,6 +1,9 @@
 import os
 import glob
+from config import Config
 from PIL import Image
+
+config = Config()
 
 
 def create_dir(path):
@@ -11,21 +14,21 @@ def create_dir(path):
 
 
 def clear_dir(path):
-    files = glob.glob(f'{path}/i_*.*')
+    files = glob.glob(f'{path}/{config.get("default", "file_prefix")}*.*')
     for f in files:
         try:
-            f.unlink()
+            os.unlink(f)
         except OSError:
             raise
 
 
 class Resizer:
 
-    def __init__(self, path, base, value):
+    def __init__(self, path, dim, value):
         self.path = path
-        self.base = base  # aspect ratio base
+        self.dim = dim  # aspect ratio dimension
         self.value = value
-        self.save_path = f'{path}/imaginator/resized'
+        self.save_path = f'{path}{config.get("default", "save_path")}'
         if os.path.isdir(self.save_path):
             clear_dir(self.save_path)
         else:
@@ -35,17 +38,17 @@ class Resizer:
         full_path = f'{self.path}/{file_name}'
         img = Image.open(full_path)
         done = False
-        if self.base == '1':
+        if self.dim == 0:
             w_percent = (self.value / float(img.size[0]))
             h_size = int((float(img.size[1]) * float(w_percent)))
             img = img.resize((self.value, h_size), Image.ANTIALIAS)
             done = True
-        elif self.base == '2':
+        elif self.dim == 1:
             h_percent = (self.value / float(img.size[1]))
             w_size = int((float(img.size[0]) * float(h_percent)))
             img = img.resize((w_size, self.value), Image.ANTIALIAS)
             done = True
 
         if done:
-            new_path = f'{self.save_path}/i_{file_name}'
+            new_path = f'{self.save_path}/{config.get("default", "file_prefix")}{file_name}'
             img.save(new_path)

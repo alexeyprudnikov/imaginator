@@ -1,53 +1,64 @@
-import sys
 import os
+from config import Config
 from actions.resize import Resizer
 
 
-actions = [
-    '1',
-    '2'
-]
+def proceed_input_from_list(input_list):
+    error_label = 'Error: input value not presented, please try again'
+    input_label = ' or '.join([f'{idx + 1} - {val}' for idx, val in enumerate(input_list)])
+    while True:
+        try:
+            input_value = int(input(f'{input_label}: '))
+            while input_value not in [idx + 1 for idx, val in enumerate(input_list)]:
+                print(error_label)
+                input_value = int(input(f'{input_label}: '))
+            return input_value
+        except ValueError:
+            print(error_label)
 
-scalings = [
-    '1',
-    '2'
-]
 
-print('What is the name of your directory?')
-#path = input(': ')
-path = '/Users/aprudnikov/Documents/Testimages'
 try:
-    directory = os.listdir(path)
-    print(f'directory: {path}')
 
-    print('Select a bulk action')
-    action = input('[1 - resize or 2 - crop]: ')
-    while action not in actions:
-        print("Error: action not presented, please try again")
-        action = input('[1 - resize or 2 - crop]: ')
+    config = Config()
+    actions = config.get('default', 'actions').split(',')
+    dimensions = config.get('default', 'dimensions').split(',')
 
-    print('Select scaling base (keeping aspect ratio)')
-    scaling = input('[1 - width or 2 - height]: ')
-    while scaling not in scalings:
-        print("Error: scaling not presented, please try again")
-        scaling = input('[1 - width or 2 - height]: ')
+    print('Enter image directory')
+    path = input(': ')
+    try:
+        print(f'directory: {path}')
 
-    print('Enter base value')
-    base_value = int(input(': '))
-    while base_value <= 0:
-        print("Error: value must be > 0")
-        base_value = int(input(': '))
+        print('Select an action')
+        action = proceed_input_from_list(actions)
 
-    if action == '1':
-        worker = Resizer(path, scaling, base_value)
-        count = 0
-        for file_name in directory:
-            worker.resize(file_name)
-            count += 1
-        print(f'{count} images proceeded!')
+        print('Select aspect ratio main dimension')
+        dim = proceed_input_from_list(dimensions)
 
-except FileNotFoundError:
-    print('Error: Directory not found')
+        print(f'Enter new image {"width" if dim == "1" else "height"}')
+        value = int(input(': '))
+        while value <= 0:
+            print("Error: value must be > 0")
+            value = int(input(': '))
+
+        # get files from directory
+        image_types = config.get('default', 'image_types').split(',')
+        files = [fn for fn in os.listdir(path) if fn.split(".")[-1] in image_types]
+
+        # proceed
+        if action == 1:
+            worker = Resizer(path, dim, value)
+            count = 0
+            for file_name in files:
+                worker.resize(file_name)
+                count += 1
+            print(f'{count} images proceeded!')
+
+    except FileNotFoundError:
+        print('Error: Directory not found')
+
+    except OSError as e:
+        print(e.strerror)
+        print('Cann not create target directory')
 
 except OSError:
-    print('Cann not create target directory')
+    print('Cann not read config')
