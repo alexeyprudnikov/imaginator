@@ -5,14 +5,14 @@ from actions.resize import Resizer
 
 # proceed input as integer by list index (starting from 1) and return value of index
 def get_input_from_list(input_list):
-    input_label = ', '.join([f'{idx + 1} - {val}' for idx, val in enumerate(input_list)])
+    input_label = ', '.join([f'{i + 1} - {v}' for i, v in enumerate(input_list)])
     value = 0
     valid_value = False
     while not valid_value:
         input_value = input(f'{input_label}: ')
         try:
             value = int(input_value)
-            if value not in [idx + 1 for idx, val in enumerate(input_list)]:
+            if value not in [i + 1 for i, v in enumerate(input_list)]:
                 raise ValueError
             valid_value = True
         except ValueError:
