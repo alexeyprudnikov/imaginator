@@ -6,10 +6,10 @@ from PIL import Image
 
 class Resizer:
 
-    def __init__(self, path, dim, value):
+    def __init__(self, path, dim, val):
         self.path = path
         self.dim = dim  # aspect ratio dimension
-        self.value = value
+        self.val = val
 
         config = Config()
         self.save_path = f'{path}{config.get("default", "save_path")}'
@@ -25,14 +25,14 @@ class Resizer:
         img = Image.open(full_path)
         done = False
         if self.dim == 'width':
-            w_percent = (self.value / float(img.size[0]))
+            w_percent = (self.val / float(img.size[0]))
             h_size = int((float(img.size[1]) * float(w_percent)))
-            img = img.resize((self.value, h_size), Image.ANTIALIAS)
+            img = img.resize((self.val, h_size), Image.ANTIALIAS)
             done = True
         elif self.dim == 'height':
-            h_percent = (self.value / float(img.size[1]))
+            h_percent = (self.val / float(img.size[1]))
             w_size = int((float(img.size[0]) * float(h_percent)))
-            img = img.resize((w_size, self.value), Image.ANTIALIAS)
+            img = img.resize((w_size, self.val), Image.ANTIALIAS)
             done = True
 
         if done:
