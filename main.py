@@ -6,30 +6,24 @@ from actions.resize import Resizer
 # proceed input as integer by list index (starting from 1) and return value of index
 def get_input_from_list(input_list):
     input_label = ', '.join([f'{i + 1} - {v}' for i, v in enumerate(input_list)])
-    value = 0
-    valid_value = False
-    while not valid_value:
-        input_value = input(f'{input_label}: ')
+    while True:
         try:
-            value = int(input_value)
+            value = int(input(f'{input_label}: '))
             if value not in [i + 1 for i, v in enumerate(input_list)]:
                 raise ValueError
-            valid_value = True
+            break
         except ValueError:
             print('Error: input value not presented, please try again')
     return input_list[value - 1]
 
 
 def get_int_positive_value():
-    value = 0
-    valid_value = False
-    while not valid_value:
-        input_value = input(': ')
+    while True:
         try:
-            value = int(input_value)
-            if value <= 0:
+            value = int(input(': '))
+            if value < 1:
                 raise ValueError
-            valid_value = True
+            break
         except ValueError:
             print("Error: value must be > 0")
     return value
