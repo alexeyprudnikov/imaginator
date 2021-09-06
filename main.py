@@ -1,6 +1,7 @@
 import os
 from config import Config
 from actions.resize import Resizer
+from actions.convert import Convertor
 
 
 # proceed input as integer by list index (starting from 1) and return value of index
@@ -32,35 +33,55 @@ def get_int_positive_value():
 try:
 
     config = Config()
+    image_types = config.get('default', 'image_types').split(',')
     actions = config.get('default', 'actions').split(',')
     dimensions = config.get('default', 'dimensions').split(',')
+    degrees = config.get('default', 'degrees').split(',')
 
     print('Enter image directory')
-    path = input(': ')
+    #path = input(': ')
+    path = '/Users/aprudnikov/Documents/Testimages'
 
     try:
-        # get files from directory (will also check if directory exists)
-        image_types = config.get('default', 'image_types').split(',')
-        files = [fn for fn in os.listdir(path) if fn.split(".")[-1] in image_types]
+        worker = None
+        files = []
 
         print(f'directory: {path}')
 
         print('Select an action')
         action = get_input_from_list(actions)
 
-        print('Select aspect ratio main dimension')
-        dim = get_input_from_list(dimensions)
-
-        print(f'Enter new image {dim}')
-        val = get_int_positive_value()
-
-        # proceed
+        # proceed resize
         if action == 'resize':
+            # get files from directory (will also check if directory exists)
+            files = [fn for fn in os.listdir(path) if os.path.splitext(fn)[1][1:].lower() in image_types]
+
+            print('Select aspect ratio main dimension')
+            dim = get_input_from_list(dimensions)
+
+            print(f'Enter new image {dim}')
+            val = get_int_positive_value()
+
             worker = Resizer(path, dim, val)
+
+        # proceed convert
+        if action == 'convert':
+            print('Select input extension')
+            ext_from = get_input_from_list(image_types)
+
+            files = [fn for fn in os.listdir(path) if os.path.splitext(fn)[1][1:].lower() == ext_from]
+
+            print('Select output extension')
+            # exclude ext_from
+            image_types.remove(ext_from)
+            ext_to = get_input_from_list(image_types)
+
+            worker = Convertor(path, ext_from, ext_to)
+
+        if worker:
             count = 0
             for file_name in files:
-                worker.resize(file_name)
-                count += 1
+                count += worker.proceed(file_name)
             print(f'{count} images proceeded!')
 
     except FileNotFoundError:

@@ -1,26 +1,17 @@
-import os
-import utils
-from config import Config
+from actions.general import General
 from PIL import Image
 
 
-class Resizer:
+class Resizer(General):
 
     def __init__(self, path, dim, val):
         self.path = path
         self.dim = dim  # aspect ratio dimension
         self.val = val
 
-        config = Config()
-        self.save_path = f'{path}{config.get("default", "save_path")}'
-        self.file_prefix = config.get("default", "file_prefix")
+        super().__init__(path)
 
-        if os.path.isdir(self.save_path):
-            utils.clear_dir(self.save_path, self.file_prefix)
-        else:
-            utils.create_dir(self.save_path)
-
-    def resize(self, file_name):
+    def proceed(self, file_name):
         full_path = f'{self.path}/{file_name}'
         img = Image.open(full_path)
         done = False
@@ -38,3 +29,5 @@ class Resizer:
         if done:
             new_path = f'{self.save_path}/{self.file_prefix}{file_name}'
             img.save(new_path)
+
+        return 1
